@@ -36,7 +36,7 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/KdriveApi.credentials.js"
+      "dist/credentials/KDriveApi.credentials.js"
     ],
     "nodes": [
       "dist/nodes/kdrive/KDrive.node.js"
