@@ -1,0 +1,9 @@
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - 5678:5678
+    volumes:
+      - .:/home/node/.n8n/custom/node_modules/n8n-nodes-kdrive
+      - ~/docker-data/n8n:/home/node/.n8n
