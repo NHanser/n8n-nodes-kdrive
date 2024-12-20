@@ -1,46 +1,130 @@
-![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# n8n-nodes-kdrive
 
-# n8n-nodes-starter
+This is an n8n community node. It lets you use kDrive API from infomaniaks in your n8n workflows.
 
-This repo contains example nodes to help you get started building your own custom integrations for [n8n](n8n.io). It includes the node linter and other dependencies.
+Infomaniak is an independant cloud provider. kDrive is their cloud storage solution. kDrive makes focus on privacy and security. 15Go of storage are free.
 
-To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
+[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
-## Prerequisites
+[Installation](#installation)  
+[Operations](#operations)  
+[Operations Parameters](#operations-parameters)  
+[Credentials](#credentials)  
+[Compatibility](#compatibility)  
+[Usage](#usage)  
+[Resources](#resources)  
+[Version history](#version-history) 
 
-You need the following installed on your development machine:
+## Installation
 
-* [git](https://git-scm.com/downloads)
-* Node.js and pnpm. Minimum version Node 18. You can find instructions on how to install both using nvm (Node Version Manager) for Linux, Mac, and WSL [here](https://github.com/nvm-sh/nvm). For Windows users, refer to Microsoft's guide to [Install NodeJS on Windows](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows).
-* Install n8n with:
-  ```
-  pnpm install n8n -g
-  ```
-* Recommended: follow n8n's guide to [set up your development environment](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/).
+Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
-## Using this starter
+## Operations
 
-These are the basic steps for working with the starter. For detailed guidance on creating and publishing nodes, refer to the [documentation](https://docs.n8n.io/integrations/creating-nodes/).
+⚠️ **WARNING: This node is currently under development. Some features might be missing or incomplete. Use with caution in a production environment.**
 
-1. [Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template repository.
-2. Clone your new repo:
-   ```
-   git clone https://github.com/<your organization>/<your-repo-name>.git
-   ```
-3. Run `pnpm i` to install dependencies.
-4. Open the project in your editor.
-5. Browse the examples in `/nodes` and `/credentials`. Modify the examples, or replace them with your own nodes.
-6. Update the `package.json` to match your details.
-7. Run `pnpm lint` to check for errors or `pnpm lintfix` to automatically fix errors when possible.
-8. Test your node locally. Refer to [Run your node locally](https://docs.n8n.io/integrations/creating-nodes/test/run-node-locally/) for guidance.
-9. Replace this README with documentation for your node. Use the [README_TEMPLATE](README_TEMPLATE.md) to get started.
-10. Update the LICENSE file to use your details.
-11. [Publish](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) your package to npm.
 
-## More information
+### Profile Operations
+- **Get**: Get user profile information
 
-Refer to our [documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/) for detailed information on building your own nodes.
+### Drive Operations
+- **List**: Get list of accessible drives
 
-## License
+### File Operations
+- **Upload**: Upload a file to kDrive
+- **Download**: Download a file from kDrive
+- **Delete**: Delete a file
+- **List**: List files in a folder
+- **Info**: Get file information
 
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
+### Folder Operations
+- **Create**: Create a new folder
+- **Delete**: Delete a folder
+
+## Operation Parameters
+
+### Common Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| Drive ID | String | Yes* | ID of the drive (*required for File and Folder operations) |
+| Account ID | String | Yes** | ID of the account (**required for Drive operations, can be found in profile information) |
+
+### Profile Operations
+#### Get
+*No additional parameters required*
+
+### Drive Operations
+#### List
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| Account ID | String | Yes | ID of the account |
+
+### File Operations
+#### Upload
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| Parent Folder ID | String | Yes | ID of the parent folder (1 for root) |
+| Binary Data | Boolean | Yes | Whether to take data from binary field |
+| Binary Property | String | Yes* | Name of the binary property containing file data (*required if Binary Data is true) |
+| File Name | String | Yes* | Name of the file to upload (*required if Binary Data is false) |
+
+#### Download
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| File ID | String | Yes | ID of the file to download |
+| File Name | String | Yes | Name of the file |
+
+#### Delete
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| File ID | String | Yes | ID of the file to delete |
+
+#### List
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| Parent Folder ID | String | Yes | ID of the folder to list files from (1 for root) |
+
+#### Info
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| File ID | String | Yes | ID of the file to get information about |
+
+### Folder Operations
+#### Create
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| Parent Folder ID | String | Yes | ID of the parent folder |
+
+#### Delete
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| Folder ID | String | Yes | ID of the folder to delete |
+
+
+## Credentials
+
+When you have a kDrive account, you can get your credentials from the [Token list page](https://manager.infomaniak.com/v3/ng/accounts/token/list).
+You need to create a token with the following permissions:
+- `drive`
+- `user_info`
+- `user_email`
+
+## Compatibility
+
+Tested with n8n 1.17.3._
+
+## Usage
+
+Almost all operations needs a `Drive ID` and an `Account ID`.
+The `Drive ID` is the ID of the drive you want to use. You can get it from the `Drive/List` operation.
+The `Account ID` is the ID of the account you want to use. You can get it from the `Profile/Get` operation.
+
+## Resources
+
+* [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
+* [kDrive API documentation](https://developer.infomaniak.com/getting-started)
+
+## Version history
+
+First release
+
