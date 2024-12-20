@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-kdrive",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Kdrive nodes for n8n",
   "keywords": [
     "n8n-community-node-package"
@@ -39,7 +39,7 @@
       "dist/credentials/KdriveApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/kdrive/Kdrive.node.js"
+      "dist/nodes/kdrive/KDrive.node.js"
     ]
   },
   "devDependencies": {

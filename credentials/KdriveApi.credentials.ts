@@ -5,9 +5,9 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export class KdriveApi implements ICredentialType {
+export class KDriveApi implements ICredentialType {
 	name = 'kdriveApi';
-	displayName = 'Kdrive API';
+	displayName = 'KDrive API';
 	documentationUrl = 'https://developer.infomaniak.com/docs/api';
 
 	properties: INodeProperties[] = [
