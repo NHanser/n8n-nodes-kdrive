@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.Kdrive",
+	"node": "n8n-nodes-base.KDrive",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": [
