@@ -3,6 +3,7 @@ import {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	NodeOperationError,
 } from 'n8n-workflow';
 import { lookup } from 'mime-types';
 
@@ -325,36 +326,50 @@ export class KDrive implements INodeType {
 
 					if (operation === 'upload') {
 						const parentFolderId = this.getNodeParameter('parentFolderId', i) as string;
-						const binaryData = this.getNodeParameter('binaryData', i) as boolean;
-						
-						if (binaryData) {
-							const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
-							const binaryDataBuffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
-							const fileName = items[i].binary![binaryPropertyName].fileName;
+						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
+						const binaryDataBuffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
+						const fileName = items[i].binary![binaryPropertyName].fileName;
+						const fileSize = Buffer.byteLength(binaryDataBuffer);
+						const url = `/3/drive/${driveId}/upload?directory_id=${parentFolderId}&file_name=${fileName}&total_size=${fileSize}`;
 
+						try {
 							const response = await this.helpers.httpRequest({
 								method: 'POST',
 								baseURL: credentials.apiUrl as string,
-								url: `/3/drive/${driveId}/files/${parentFolderId}/files`,
+								url,
 								headers: {
 									'Authorization': `Bearer ${credentials.accessToken}`,
-									'Content-Type': 'multipart/form-data',
+									'Content-Type': 'application/octet-stream',
 								},
-								body: {
-									file: {
-										value: binaryDataBuffer,
-										options: {
-											filename: fileName,
-										},
-									},
-								},
+								body: binaryDataBuffer,
+								returnFullResponse: true, // Pour capturer tous les codes de statut
 							});
 
+							if (response.status === 404) {
+								throw new NodeOperationError(this.getNode(), 'API Endpoint not found', {
+									description: `Full URL: ${credentials.apiUrl}${url}\nDrive ID: ${driveId}\nDirectory ID: ${parentFolderId}\nFile Name: ${fileName}\nFile Size: ${fileSize}\nResponse: ${JSON.stringify(response.data)}`,
+									runIndex: i,
+								});
+							}
+
+                            if (response.status === 409) {
+								throw new NodeOperationError(this.getNode(), 'File already exists', {
+									description: `Full URL: ${credentials.apiUrl}${url}\nDrive ID: ${driveId}\nDirectory ID: ${parentFolderId}\nFile Name: ${fileName}\nFile Size: ${fileSize}\nResponse: ${JSON.stringify(response.data)}`,
+									runIndex: i,
+								});
+							}
+
 							returnData.push({ json: response });
+						} catch (error) {
+							throw new NodeOperationError(this.getNode(), `Upload failed: ${error.message}`, {
+								description: `Full URL: ${credentials.apiUrl}${url}\nDrive ID: ${driveId}\nDirectory ID: ${parentFolderId}\nFile Name: ${fileName}\nFile Size: ${fileSize}\nResponse: ${error.response?.data ? JSON.stringify(error.response.data) : 'No response data'}`,
+								runIndex: i,
+							});
 						}
 					}
 
 					else if (operation === 'download') {
+						console.log('Starting download operation');
 						const fileId = this.getNodeParameter('fileId', i) as string;
 						const fileName = this.getNodeParameter('fileName', i) as string;
 						
@@ -384,6 +399,7 @@ export class KDrive implements INodeType {
 					}
 
 					else if (operation === 'delete') {
+						console.log('Starting delete operation');
 						const fileId = this.getNodeParameter('fileId', i) as string;
 
 						const response = await this.helpers.httpRequest({
@@ -400,6 +416,7 @@ export class KDrive implements INodeType {
 					}
 
 					else if (operation === 'list') {
+						console.log('Starting list operation');
 						const parentFolderId = this.getNodeParameter('parentFolderId', i, '1') as string;
 
 						const response = await this.helpers.httpRequest({
@@ -416,6 +433,7 @@ export class KDrive implements INodeType {
 					}
 
 					else if (operation === 'info') {
+						console.log('Starting info operation');
 						const fileId = this.getNodeParameter('fileId', i) as string;
 
 						const response = await this.helpers.httpRequest({
